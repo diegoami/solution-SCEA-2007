@@ -1,0 +1,915 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+
+
+  
+  <meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">
+
+  
+  <title>index.html</title>
+</head>
+
+
+<body>
+
+
+<h1><font><font face="Courier New, Courier">Sun Certified Enterprise
+Architect for Java 2 Platform, Enterprise Edition Technology</font></font></h1>
+
+<br>
+
+<big><big>Solution by <span style="font-weight: bold;">Diego Amicabile</span>, ID : <span style="font-weight: bold;">sr1589772</span></big><br>
+
+</big>
+<h1>DIAGRAMS</h1>
+
+
+In the Component and Sequence Diagrams I aggregated objects which
+perform similar functions (Views, View Helpers, Command, Business
+Delegates, Session Bean Processors...). For instance, in the Prepare
+Itinerary sequence diagram, all Views (Search Flight,Select
+Flight,Select Seats, Confirm Itinerary ) are represented by the same
+object.<br>
+
+
+In the Sequence Diagrams it is not shown how Processors read / modify
+their data - their interactions with <span style="font-style: italic;">Data Access Objects</span>
+and&nbsp; with external systems are not shown. It is also not shown
+how entity beans are persisted - they also go through the DAOs.<br>
+
+
+The <span style="font-style: italic;">Business Delegates</span>
+uses the <span style="font-style: italic;">Service Locator</span>
+to locate the <span style="font-style: italic;">Session
+Beans, </span>and this is not shown in the sequence diagrams.<br>
+
+
+Since my software does not support conditional flow in sequence
+diagrams, this is handled with comments. My software does not support
+including use cases and that is why included use cases are objects in
+the sequence diagrams.
+<h4><span style="font-style: italic;"><a href="classdiagram.png">Class diagram</a></span></h4>
+
+
+<h4><small><big><a style="font-style: italic;" href="componentdiagram.png">Component Diagram</a></big>&nbsp;</small></h4>
+
+
+<h4><br>
+
+
+SEQUENCE DIAGRAMS</h4>
+
+
+<ul>
+
+  <li><a href="prepareitinerarySD.png">Prepare
+Itiinerary<br>
+
+
+    </a></li>
+
+  <li><a href="priceitinerarySD.png">Price Itinerary</a>&nbsp;</li>
+
+  <li><a href="payitinerarySD.png">Pay For Itinerary</a></li>
+
+  <li><a href="changeitinerarySD.png">Change
+Itinerary</a></li>
+
+  <li><a href="awardtravelSD.png">Award Travel</a></li>
+
+  <li><a href="loginSD.png">Login</a></li>
+
+  <li><a href="createcustomerSD.png">Create Customer</a></li>
+
+  <li><a href="selectcustomerSD.png">Select Customer</a></li>
+
+  <li><a href="selectitinerarySD.png">Select
+Itinerary</a></li>
+
+  <li><a href="viewfrequentflyermilesSD.png">View
+Frequent Flyer Miles</a></li>
+
+</ul>
+
+<big></big>
+<h1>ASSUMPTIONS</h1>
+
+
+<h2>CLIENTS</h2>
+
+
+<br>
+
+
+Both a Swing Application and a Web application will be created. These
+two applications will share a common back end, which will contain the
+Enterprise Java Beans and the Data Store. <br>
+
+
+They will have a common code base for the following components in the
+Front End : Business Delegate, Commands,
+ServiceLocator, Context Object.<br>
+
+
+They will have different&nbsp; implementations for the following
+components: <br>
+
+
+<br>
+
+
+<table style="text-align: left; width: 100%;" border="1" cellpadding="2" cellspacing="2">
+
+
+  <tbody>
+
+
+    <tr>
+
+
+      <td>COMPONENT NAME</td>
+
+
+      <td>WEB APPLICATION</td>
+
+
+      <td>SWING APPLICATION</td>
+
+
+    </tr>
+
+
+    <tr>
+
+
+      <td>Application Controller</td>
+
+
+      <td>WebApplicationController</td>
+
+
+      <td>SwingApplicationController</td>
+
+
+    </tr>
+
+
+    <tr>
+
+
+      <td>View</td>
+
+
+      <td>JSP</td>
+
+
+      <td>Swing GUI</td>
+
+
+    </tr>
+
+
+    <tr>
+
+
+      <td>View Helper</td>
+
+
+      <td>Tag Libraries </td>
+
+
+      <td>Beans (in the Client)</td>
+
+
+    </tr>
+
+
+    <tr>
+
+
+      <td>Value List Handler</td>
+
+
+      <td>Tag Libraries</td>
+
+
+      <td>Beans (in the Client)</td>
+
+
+    </tr>
+
+
+    <tr>
+
+
+      <td>Front Controller</td>
+
+
+      <td>WebFrontController</td>
+
+
+      <td>-</td>
+
+
+    </tr>
+
+
+    <tr>
+
+
+      <td>Request</td>
+
+
+      <td>HttpRequest</td>
+
+
+      <td>-</td>
+
+
+    </tr>
+
+
+  
+  </tbody>
+</table>
+
+
+<br>
+
+
+<h2>APPLICATION STRUCTURE</h2>
+
+
+<h3>ACTORS</h3>
+
+
+<br>
+
+
+There are two main types of actor : the customer and the travel agent.
+The sequence
+diagrams refer to the web application, which is supposed to be used by
+the customer. In all of the use cases the main actor may be either the
+travel agent or the customer. If the main actor is the travel agent I
+am assuming&nbsp;he has selected a customer first (in the Select
+Customer use case) and the Customer data has been put&nbsp; into
+the Context Object. If the
+main actor is the Customer, then he has already been saved into
+the Context Object (after logging in).<br>
+
+
+<h3 style="font-weight: bold;">WORKFLOW</h3>
+
+
+In the Web Application, the information is submitted from the <span style="font-style: italic;">View</span> to the <span style="font-style: italic;">Front controller</span>,
+which according to the <span style="font-style: italic;">Request</span>
+will put data&nbsp; into the <span style="font-style: italic;">Context
+Object .</span>&nbsp;The <span style="font-style: italic;">Context
+Object</span> contains data which has been submitted by the <span style="font-style: italic;">View</span> and the <span style="font-style: italic;">Command</span> which must
+be executed. The <span style="font-style: italic;">Context
+Object</span> is retrieved from and saved into the<span style="font-style: italic;"> HttpSession.</span><br>
+
+
+The <span style="font-style: italic;">Front Controller </span>then
+delegates control to the <span style="font-style: italic;">Application
+Controller</span>, which will then use the information in the <span style="font-style: italic;">Context Object &nbsp;</span>to
+execute a<span style="font-style: italic;"> Command</span><span style="font-style: italic;">.</span><span style="font-style: italic;"></span><br>
+
+
+The Swing Application does not have a <span style="font-style: italic;">Front Controller</span>.
+When an event is fired in the <span style="font-style: italic;">Client</span>,
+&nbsp;the SwingApplicationController will fill the <span style="font-style: italic;">Context Object</span> with
+the necessary data and execute the required <span style="font-style: italic;">Command.</span><br style="font-style: italic;">
+
+
+<br>
+
+
+The <span style="font-style: italic;">Command</span>
+will use the data which has been put into the <span style="font-style: italic;">Context Object</span> and
+call methods in the <span style="font-style: italic;">Business
+Delegate</span>s to perform the necessary operations. <br>
+
+
+The <span style="font-style: italic;">Business Delegates </span>will
+use a <span style="font-style: italic;">Service Locator </span>to
+find the <span style="font-style: italic;">Stateless
+Session Beans (</span>using JNDI<span style="font-style: italic;">),</span> which will
+perform the&nbsp; business operations. They may use other <span style="font-style: italic;">Session Beans</span>, <span style="font-style: italic;">Entity Beans,</span> <span style="font-style: italic;">Data Access Objects</span>
+or &nbsp;<span style="font-style: italic;">Connectors </span>to
+external system for this.&nbsp;<span style="font-style: italic;">
+</span>There is a <span style="font-style: italic;">data
+access object</span> layer, where all the <span style="font-style: italic;">Data Store</span> access
+methods are located. &nbsp;Both <span style="font-style: italic;">Session Beans</span> and <span style="font-style: italic;">Entity Beans</span> use
+this layer.<br>
+
+
+<br>
+
+
+The data which has been retrieved from the back end will be put by the <span style="font-style: italic;">Command</span>&nbsp;
+into the <span style="font-style: italic;">Context Object</span>.
+Control is then returned to the <span style="font-style: italic;">Application
+Controller</span> which will then forward to the appropriate <span style="font-style: italic;">View.<br>
+
+
+</span>The <span style="font-style: italic;">View</span>
+will then ask the <span style="font-style: italic;">View
+Helpers</span> and <span style="font-style: italic;">Value
+List Handlers</span> to retrieve the data from the <span style="font-style: italic;">Context Object </span>and
+then will format and show it.<br>
+
+
+In the Swing Application the <span style="font-style: italic;">Value
+List Handler</span> and <span style="font-style: italic;">View
+Helpers</span> are ordinary Java Classes which I will not show in
+the Component Diagram.<br>
+
+
+I am assuming that the <span style="font-style: italic;">Value
+List Collections,&nbsp;</span>
+which are returned from the back end layer in the described use cases,
+are reasonably small, so the front end will not need to query the back
+end again when paging through the data. <br>
+
+
+<br>
+
+
+<h3><span style="font-weight: bold;">STATE
+INFORMATION</span></h3>
+
+
+<br>
+
+
+I decided not to use <span style="font-style: italic;">Stateful
+Session Beans. </span>There are no requirements which would make
+this strictly necessary (such as distributed user sessions), so for the
+sake
+of simplicity I will keep my state information in the <span style="font-style: italic;">Context Object</span>,<br>
+
+
+The <span style="font-style: italic;">View Helpers</span><span style="font-weight: bold;">&nbsp;</span>will
+retrieve the necessary state information from the <span style="font-style: italic;">Context Object</span>.
+&nbsp;Both the <span style="font-style: italic;">Swing
+Application</span> and the <span style="font-style: italic;">Web
+Application</span> will create and use instances of <span style="font-style: italic;">Context Object</span> <br>
+
+
+In the <span style="font-style: italic;">Web Application</span>,
+the <span style="font-style: italic;">Front Controller</span>
+will process the&nbsp;HttpRequest&nbsp; to fill the<span style="font-style: italic;"> Context Object, </span>which
+will be kept in the <span style="font-style: italic;">HttpSession</span>.
+<h3>DOMAIN MODEL : ENTITY BEANS</h3>
+
+
+The <span style="font-style: italic;">Entity
+beans&nbsp;</span>in the&nbsp; Domain Model &nbsp;are:<br>
+
+
+<ul>
+
+
+  <li><span style="font-weight: bold;">Customer : </span>Every
+user has a Customer profile . A Customer may have Credit Card
+information and other&nbsp; information, which is stored along with
+the
+customer data. The Customer &nbsp;will be also a <span style="font-style: italic;">Composite Entity Bean.&nbsp;</span>Details
+about what should be stored into it (address, telephone, email..) are
+not specified.&nbsp;</li>
+
+
+  <li><span style="font-weight: bold;">User</span>
+: Here are
+registered all users who are allowed to use the system : customers,
+travel agents, administrators. A user has one or more <span style="font-style: italic;">roles,&nbsp;</span>
+the user-role associations are loaded together with the user.
+Association with a Customer Entity must also be stored</li>
+
+
+  <li>&nbsp;<span style="font-weight: bold;">Itinerary
+:</span> An unpaid Itinerary is a <span style="font-style: italic;">Composite Entity Bean </span>and
+will be saved as a collection of segments. The <span style="font-style: italic;">Entity Beans</span> will
+use <span style="font-style: italic;">Data Access Objects</span>
+to make sure both Itineraries and Segments are
+saved
+correctly into the <span style="font-style: italic;">Data
+Store</span>. The Segment contains necessary information to
+identify the Flight and the Seat Reservation. An Itinerary is
+associated with a Customer. An unpaid
+Itinerary is also saved into the <span style="font-style: italic;">Data
+Store</span>. Prices for an itinerary are calculated using&nbsp;the PriceProcessor. When an Itinerary is associated with a Payment
+(by Credit Card or Award)&nbsp; it has been paid (there
+is&nbsp; a flag) and won't be deleted by the cleanup job.</li>
+
+
+  <li>&nbsp;<span style="font-weight: bold;"></span><span style="font-weight: bold;">Seat Reservation : </span>When
+a Seat in an Equipment&nbsp; is reserved, a Seat Reservation object
+is
+created. A
+Seat Reservation is identified&nbsp; by an Equipment, a Seat and
+the Customer who reserved. A seat may be reserved for an unpaid
+itinerary and a Seat Reservation may be cancelled (if the user changes
+itinerary or if he is unable to pay) . While theoretically a Seat
+Reservation may&nbsp; reference just&nbsp; the Seat and the
+Customer, in my
+model a Seat is a "dumb" object which does not know about the Equipment
+it
+is in, and this is why a Seat Reservation references&nbsp; the
+Equipment as well. This allows also to retrieve in a pass all Seats
+in an Equipment which are available. &nbsp;I don't allow
+overbooking.<br>
+
+
+When confirming an itinerary, for every segment an association to one
+or several Seat Reservation is created.<br>
+
+
+When a customer pays for his Seat Reservations in an Equipment, the
+flag Paid is set to true. Then the Seat Reservation won't be removed
+&nbsp;by the cleanup job</li>
+
+
+  <li>&nbsp;<span style="font-weight: bold;">Payment
+: </span>Every
+Payment is associated with a Customer and an Itinerary. Payment
+information must be tracked, this is why this information needs to be
+persistent. The credit card which was used and &nbsp;the
+Transmaster
+transaction identifier e.g. will be saved. A Payment may be by Credit
+Card (CreditCardPayment) or Award &nbsp;(AwardPayment), which are
+Payment's subclasses. This should simplify mapping to the <span style="font-style: italic;">Data Store</span>. I
+assume&nbsp;payment is an atomic operation : you either pay fully
+or
+you don't.</li>
+
+
+</ul>
+
+
+<ul>
+
+
+</ul>
+
+
+These objects may exist also as <span style="font-style: italic;">Value
+Objects </span>in the Front End.<br>
+
+
+For persistence, I am planning to use <span style="font-style: italic;">Bean Managed Persistence</span>
+in the <span style="font-style: italic;">Data Access
+Objects</span> .Third party tools
+(like Hibernate or IBATIS) , JPA,&nbsp; object oriented databases,
+or simple JDBC calls, may be used. The <span style="font-style: italic;">Data Store</span>
+will be managed by the <span style="font-style: italic;">Data
+Access Objects</span> and will
+be transparent to the rest of the application. I chose BMP over CMP
+because of portability and more flexibility in persisting <span style="font-style: italic;">Composite Entity Beans.</span><br style="font-style: italic;">
+
+
+<br>
+
+
+<h3><span style="font-weight: bold;">STATELESS
+SESSION BEANS - PROCESSORS</span></h3>
+
+
+There are&nbsp; Stateless Session Beans who&nbsp; work as<span style="font-style: italic;"> &nbsp;Business Objects </span>and
+contain methods which encapsulate the required atomic business
+operations. The methods may create <span style="font-style: italic;">Entity
+Beans</span> if required. Or may just query the data store and
+return a list of <span style="font-style: italic;">Value
+Objects, </span>using the <span style="font-style: italic;">Fast
+Lane Reader </span>pattern, when retrieving data.<br>
+
+
+I will call these Stateless Session Beans <span style="font-style: italic;">Processors.</span><br>
+
+
+There will be these <span style="font-style: italic;">Processors</span>:<br>
+
+
+<br>
+
+
+<ul style="font-weight: bold;">
+
+
+  <li>CustomerProcessor : <span style="font-weight: normal;">to
+create customers, log in, retrieve customer information</span></li>
+
+
+  <li>SeatProcessor :&nbsp;<span style="font-weight: normal;">to
+reserve seats on a flight (equipment), to verify their availability, to
+filter out
+reserved seats in an equipment, to retrieved all reserved / free seats
+in an
+equipment</span></li>
+
+
+  <li>ItineraryProcessor : <span style="font-weight: normal;">to
+persist, create, modify and retrieve itineraries</span></li>
+
+
+  <li>SearchProcessor : <span style="font-weight: normal;">to
+retrieve Flight timetables and distances according to user-entered
+search criteria</span></li>
+
+
+  <li><span style="font-weight: normal;"><span style="font-weight: bold;">PriceProcessor : </span>to
+calculate the price of an Itinerary or a Flight <br>
+
+
+    </span></li>
+
+
+  <li>PaymentProcessor : &nbsp;<span style="font-weight: normal;">to pay for Itineraries</span></li>
+
+
+  <li>MileageProcessor : <span style="font-weight: normal;">to
+retrieve and update mileage information for a Customer and to create
+new
+Mileage Accounts -&nbsp; interfaces to&nbsp; the legacy
+application</span></li>
+
+
+  <li>TransmasterProcessor : <span style="font-weight: normal;">to pay for an itinerary
+-&nbsp; interfacing to the Transmaster external system</span></li>
+
+
+</ul>
+
+
+<span style="font-style: italic;">Note</span> :
+Information about Flight timetables and prices, Flight Equipment
+(Seats), Prices are not to be modified by the Travel System
+Application, and
+are fed into the data store by other applications. <br>
+
+
+I will have <span style="font-style: italic;">Data Access
+Objects</span> which&nbsp;contain
+methods&nbsp; returning
+a list of flight timetables and prices (filtered by the search
+criteria) or seats (in an equipment). Mixing in the Travel System
+Application
+data I will be able to retrieve information about
+available Seats on a Flight.<br>
+
+
+I assume these data&nbsp; may be changed by external systems any
+time
+so they cannot be cached or in any way managed by the Travel System
+Application.<br>
+
+
+<br>
+
+
+<big><span style="font-weight: bold;">STATELESS
+SESSION BEAN - EJBCONTROLLER<br>
+
+
+<br>
+
+
+</span><small>I have chosen to use a stateless session
+beans
+(<span style="font-style: italic;">EjbController</span>)
+as well for atomic operations which span over several
+processor calls, so that the
+transactions for these operations can be easily managed by the
+container. <br>
+
+
+If something goes wrong during one of these operations (e.g. a seat has
+already been reserved), the entire operation will be rolled back.<br>
+
+
+In a different type of architecture, this would be a <span style="font-style: italic;">stateful session bean , </span>but
+here I made it stateless&nbsp; because I am already keeping the
+state information in the <span style="font-style: italic;">Context
+Object.<br>
+
+
+<span style="font-style: italic;"></span><br>
+
+
+</span>There are following operations in the <span style="font-style: italic;">EJBController</span> bean:<br>
+
+
+</small></big>
+<ul style="font-weight: bold;">
+
+
+  <li><big><small>doPayment : <span style="font-weight: normal;">to pay for un unpaid itinerary</span></small></big></li>
+
+
+  <li><big><small>doConfirmItinerary : <span style="font-weight: normal;">to confirm an itinerary and
+reserve seats</span></small></big></li>
+
+
+  <li><big><small>doAwardTravel : <span style="font-weight: normal;">to book an award travel</span></small></big></li>
+
+
+  <li><big><small><span style="font-weight: normal;"><span style="font-weight: bold;">doDeleteSegment</span>: to
+delete a segment and the associated seat reservation</span></small></big></li>
+
+
+  <li><big><small><span style="font-weight: normal;"><span style="font-weight: bold;">doCreateCustomer : </span>to
+create customers<br>
+
+
+    </span></small></big></li>
+
+
+</ul>
+
+
+<big><small>There is only one <span style="font-style: italic;">EJBController</span>,
+because there are few operations and the&nbsp;methods will not be
+very long.&nbsp;<span style="font-style: italic;">EJBCommand</span>
+&nbsp;objects may be considered to encapsulate these operations
+(not shown in the architecture).<br>
+
+
+</small></big>
+<h3>MESSAGE BEANS</h3>
+
+
+There will be only one message bean:<br>
+
+
+<ul>
+
+
+  <li><span style="font-weight: bold;">EmailProcessor
+: </span>An EmailProcessor (a Message Bean) is used to send
+Emails. It uses JavaMail.</li>
+
+
+</ul>
+
+
+<h3>VALUE OBJECTS</h3>
+
+
+<br>
+
+
+<h3><small><span style="font-weight: normal;">There
+are other objects in the domain model which are not persisted by the
+Travel System Application and exist in the application only as <span style="font-style: italic;">Value Objects</span>,
+either because they do not need to be persistent or because they are
+retrieved from an external system or the <span style="font-style: italic;">Data Store</span> and are
+read only.&nbsp; </span></small></h3>
+
+
+<ul style="font-weight: bold;">
+
+
+  <li>Seat : &nbsp;<span style="font-weight: normal;">A
+Seat <span style="font-style: italic;">Value Object</span>
+contains information about
+his position in an equipment, his class (first Class / Coach)
+and&nbsp; a
+flag (available / not available). It is contained in an
+Equipment.&nbsp;</span></li>
+
+
+  <li>Flight :<span style="font-weight: normal;">
+Read only; it is
+retrieved by the SearchProcessor and contains information about the
+flight (flight number, departure and arrival cities, date, time)
+.&nbsp;</span></li>
+
+
+  <li>Segment : <span style="font-weight: normal;">This
+information
+is persistent and managed by the Travel System&nbsp;Application,
+but it is
+part of the Itinerary and is saved along with it.- &nbsp;A Segment
+contains information about the flown distance as well</span></li>
+
+
+  <li>MileageAccount : <span style="font-weight: normal;">It
+is retrieved&nbsp; by the MileageProcessor. Contains mileage
+information (Mileage) which is updated by the Travel
+System Application and given back to the MileageProcessor&nbsp;</span></li>
+
+
+  <li>Price : <span style="font-weight: normal;">Associated
+with a Itinerary or a Flight and calculated by the PriceProcessor,
+using as argument either a Flight or Itinerary. Price calculation could
+vary over time and this is why it is kept in a separate component. Will
+contain amount and currency.</span></li>
+
+
+  <li>FlightSearchCriteria : <span style="font-weight: normal;">Value Object which is filled by
+the View and used to perform searches with the SearchProcessor</span>&nbsp;</li>
+
+
+  <li>Equipment&nbsp;:&nbsp;<span style="font-weight: normal;">contains
+information about the Plane and the seat layout for a Flight. It is
+read only, because it is not modified by the Travel </span><span style="font-weight: normal;">System</span><span style="font-weight: normal;"> application. It is retrieved
+by the SeatProcessor</span></li>
+
+
+  <li style="font-weight: bold;"><big style="font-weight: normal;"><small><span style="font-weight: bold;">Role : </span>basically an
+enumerated type ( Customer, Travel Agent, Administrator)<span style="font-weight: bold;"> </span></small><br>
+
+
+    </big></li>
+
+
+</ul>
+
+
+<span style="font-style: italic; font-weight: bold;">
+</span><big><br>
+
+
+</big>
+<span style="font-weight: bold;"><big>EXTERNAL
+INTERFACES</big><br>
+
+
+<br>
+
+
+</span>The only information which is not available in the data
+store
+and cannot be accessed &nbsp;directly by the J2EE application is
+the
+Transmaster (to process payments) and the Frequent Flyer Mileage system.<br>
+
+
+Both will be encapsulated by <span style="font-style: italic;">Business
+Objects</span> which will work as <span style="font-style: italic;">Adapters . </span>The
+implementation details are left to the developers<span style="font-style: italic;">. </span>For
+Transmaster JAX-RPC will be probably be used and for the Frequent Flyer
+Mileage System a screen scraper may be the easiest solution, or
+alternatively accessing the back-end database.<br>
+
+
+<br>
+
+
+<br>
+
+
+<br>
+
+
+<h3>BUSINESS DELEGATES</h3>
+
+
+The <span style="font-style: italic;">Business Delegates</span>
+encapsulate access to the <span style="font-style: italic;">Stateless
+Session Beans</span> and use a <span style="font-style: italic;">Service Locator</span> to
+locate them. They may cache <span style="font-style: italic;">Session
+Bean</span> handles<br>
+
+
+The <span style="font-style: italic;">Business Delegates</span>
+either talk to the <span style="font-style: italic;">Processors</span>
+( for simple, read-only operations) or to the <span style="font-style: italic;">EjbController</span> (for
+complex, transactional operations)<br>
+
+
+There is going to be a <span style="font-style: italic;">Business
+Delegate</span> for every remote Session Bean
+which needs to be accessed. Every <span style="font-style: italic;">Business
+Delegate</span> inherits from a
+common ancestor class, which contains the common functionality.<br>
+
+
+<br>
+
+
+<h3>WEB COMMANDS</h3>
+
+
+The Web Commands are coarse-grained unities of work, used both by the
+Swing
+and the Web application. They delegate to the <span style="font-style: italic;">Business Delegate</span>s
+to perform the
+atomic business operation supplied by the <span style="font-style: italic;">EjbController</span>
+Session Beans, or to retrieve the necessary data from the <span style="font-style: italic;">Processor</span> Session
+Beans.<br>
+
+
+<br>
+
+
+<h3>JOBS</h3>
+
+
+There are&nbsp; going to be cleanup jobs, which will remove (after
+a fixed time):<br>
+
+
+<ul>
+
+
+  <li>Unpaid&nbsp;Seat Reservations&nbsp;</li>
+
+
+  <li>Unpaid&nbsp;Itineraries </li>
+
+
+  <li>Users who have not confirmed their registrations</li>
+
+
+</ul>
+
+
+<br>
+
+
+For that,
+creation date needs to be saved along with these objects.<br>
+
+
+<br>
+
+
+<h3>WEB APPLICATION</h3>
+
+
+The customers goes through a Model 2 web application (Model, View,
+Controller). The View is rendered by JSP pages. The Model
+&nbsp;objects are plain Java objects (POJOs) which are accessed
+through Tag Libraries. Controller components are to be defined : <span style="font-style: italic;">Front Controller</span> to
+parse the request and fill the <span style="font-style: italic;">Context
+Object</span> and <span style="font-style: italic;">Application
+Controller</span> for managing the workflow and executing <span style="font-style: italic;">Command</span>s.<br>
+
+
+A web framework may be internally developed for this task, or
+third-party tools like the WAF from the Java Petstore Demo or Webwork
+may be used. <br>
+
+
+<span style="font-style: italic;">Context Object</span>
+and Commands should be used also by the <span style="font-style: italic;">Swing Application<br>
+
+
+</span>The Web Server will have to configured so that connections
+may be allowed only through HTTPS.<br>
+
+
+<br>
+
+
+<h3>SWING APPLICATION</h3>
+
+
+I am assuming the Swing Application will be developed by the same team
+which is developing the Web Application, so they will know how to reuse
+the Business Objects and the parts which are common between the two. I
+am assuming the travel agents will access the swing application either
+from inside the intranet or through a Virtual Private Network, so that
+the HTTPS requirement is not going to be an issue for the swing
+application.
+<h3>FILTERS</h3>
+
+
+In the <span style="font-style: italic;">Web Application</span>,
+everytime the user submits information through
+the view, he goes through a SignOn<span style="font-style: italic;">
+Filter.</span> This signon <span style="font-style: italic;">Filter</span>
+checks
+whether user information has been saved into the <span style="font-style: italic;">Context Object</span>, and
+if
+so, or if the requested URL does not require authentication, it
+forwards to the servlet which will then perform the right command
+according to the URL. If the user tries to perform actions in the
+Travel
+System Application which require authentication then the URL string is
+saved
+into the <span style="font-style: italic;">Context Object</span>
+( for later redirection) and the SignOn use
+case
+is started. After successful signon the URL is retrieved from the
+<span style="font-style: italic;">Context Object</span>,
+and according to it the originally requested command is
+executed.<br>
+
+
+The Signon <span style="font-style: italic;">Filter</span>
+is not shown in the sequence diagrams.<br>
+
+
+<br>
+
+
+<br>
+
+<br>
+
+</body>
+</html>
